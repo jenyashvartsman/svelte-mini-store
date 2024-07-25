@@ -1,6 +1,6 @@
 import type { ProductDto } from "../dto/product.dto";
 
-const productsData: ProductDto[] = [
+export const productsData: ProductDto[] = [
   {
     name: "Apple",
     price: 1.2,
