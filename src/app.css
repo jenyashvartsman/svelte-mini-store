@@ -5,6 +5,8 @@
   --color-text-secondary: #f2f2f2;
   --color-btn-primary: #1c1f26;
   --color-btn-secondary: #e7bc0e;
+  --color-scrollbar-thumb: #d6dee1;
+  --color-scrollbar-thumb-hover: #a8bbbf;
 }
 
 * {
@@ -18,4 +20,17 @@ body {
   min-height: 100vh;
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
