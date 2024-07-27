@@ -5,7 +5,13 @@
   import { productsData } from "./lib/data/products.data";
 
   // data
-  const products = productsData;
+  let products: ProductDto[] = [];
+  const categories = Array.from(
+    new Set(productsData.map((product) => product.category))
+  );
+
+  // filter
+  let categoriesFilter: string[] = [...categories];
 
   // cart
   let cartProducts: CartProductDto[] = [];
@@ -17,11 +23,25 @@
   // formatter
   $: formattedCurrency = (price: number) => `$${price.toFixed(2)}`;
 
+  // total calculation
   $: {
     cartTotal = cartProducts.reduce(
       (total, product) => (total += product.quantity * product.product.price),
       0
     );
+  }
+
+  // products filter
+  $: products = productsData.filter((product) =>
+    categoriesFilter.includes(product.category)
+  );
+
+  function handleFilterClick(categoryToToggle: string): void {
+    const isCategoryExist = categoriesFilter.includes(categoryToToggle);
+
+    categoriesFilter = isCategoryExist
+      ? categoriesFilter.filter((category) => category !== categoryToToggle)
+      : [...categoriesFilter, categoryToToggle];
   }
 
   function handleAddToCartClick(product: ProductDto): void {
@@ -61,6 +81,17 @@
     <!-- title -->
     <h3 class="products__title">Check our products</h3>
 
+    <!-- products categories -->
+    <div class="product__categories">
+      {#each categories as category}
+        <button
+          class="product__category"
+          class:product__category-active={categoriesFilter.includes(category)}
+          on:click={() => handleFilterClick(category)}>{category}</button
+        >
+      {/each}
+    </div>
+
     <!-- products grid -->
     <div class="products__grid">
       {#each products as product}
@@ -80,6 +111,8 @@
             on:click={() => handleAddToCartClick(product)}>Add to Cart</button
           >
         </div>
+      {:else}
+        <p class="products__empty">No result, please select a category</p>
       {/each}
     </div>
   </section>
@@ -125,6 +158,8 @@
               </button>
             </div>
           </li>
+        {:else}
+          <li class="cart__empty">No items added yet</li>
         {/each}
       </ul>
 
@@ -154,14 +189,10 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: var(--color-scrollbar-thumb);
+    background-color: var(--color-text-primary);
     border-radius: 20px;
-    border: 6px solid transparent;
+    border: 8px solid transparent;
     background-clip: content-box;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--color-scrollbar-thumb-hover);
   }
 
   .app {
@@ -190,10 +221,33 @@
     margin-bottom: 2rem;
   }
 
+  .product__categories {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .product__category {
+    background-color: transparent;
+    border: 1px solid var(--color-btn-secondary);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .product__category-active {
+    background-color: var(--color-btn-secondary);
+  }
+
   .products__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     grid-gap: 1rem;
+  }
+
+  .products__empty {
+    text-align: center;
   }
 
   .productCard {
@@ -251,6 +305,10 @@
     font-size: 1rem;
     font-weight: 500;
     margin-bottom: 1rem;
+  }
+
+  .cart__empty {
+    color: var(--color-text-secondary);
   }
 
   .cart__products {
