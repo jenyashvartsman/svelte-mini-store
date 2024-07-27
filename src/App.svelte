@@ -5,13 +5,14 @@
   import { productsData } from "./lib/data/products.data";
 
   // data
-  let products: ProductDto[] = [];
   const categories = Array.from(
     new Set(productsData.map((product) => product.category))
   );
+  const defaultImg = "default-product.png";
 
-  // filter
-  let categoriesFilter: string[] = [...categories];
+  // products
+  let products: ProductDto[] = [];
+  let filter: string[] = [...categories];
 
   // cart
   let cartProducts: CartProductDto[] = [];
@@ -24,24 +25,22 @@
   $: formattedCurrency = (price: number) => `$${price.toFixed(2)}`;
 
   // total calculation
-  $: {
-    cartTotal = cartProducts.reduce(
-      (total, product) => (total += product.quantity * product.product.price),
-      0
-    );
-  }
+  $: cartTotal = cartProducts.reduce(
+    (total, product) => (total += product.quantity * product.product.price),
+    0
+  );
 
   // products filter
   $: products = productsData.filter((product) =>
-    categoriesFilter.includes(product.category)
+    filter.includes(product.category)
   );
 
   function handleFilterClick(categoryToToggle: string): void {
-    const isCategoryExist = categoriesFilter.includes(categoryToToggle);
+    const isCategoryExist = filter.includes(categoryToToggle);
 
-    categoriesFilter = isCategoryExist
-      ? categoriesFilter.filter((category) => category !== categoryToToggle)
-      : [...categoriesFilter, categoryToToggle];
+    filter = isCategoryExist
+      ? filter.filter((category) => category !== categoryToToggle)
+      : [...filter, categoryToToggle];
   }
 
   function handleAddToCartClick(product: ProductDto): void {
@@ -60,7 +59,7 @@
     const existingCartProduct = cartProducts.find(
       (cartProduct) => cartProduct.product.name === product.name
     );
-    if (existingCartProduct?.quantity > 1) {
+    if (existingCartProduct && existingCartProduct.quantity > 1) {
       existingCartProduct.quantity--;
       cartProducts = [...cartProducts];
     } else {
@@ -86,7 +85,7 @@
       {#each categories as category}
         <button
           class="product__category"
-          class:product__category-active={categoriesFilter.includes(category)}
+          class:product__category-active={filter.includes(category)}
           on:click={() => handleFilterClick(category)}>{category}</button
         >
       {/each}
@@ -100,7 +99,7 @@
             class="productCard__img"
             alt={product.name}
             src={product.img}
-            on:error={(e) => (e.srcElement.src = "public/default-product.png")}
+            on:error={(e) => (e.target.src = defaultImg)}
           />
           <div class="productCard__details">
             <h5 class="productCard__name">{product.name}</h5>
@@ -132,8 +131,7 @@
                 class="cartProduct__img"
                 alt={cartProduct.product.name}
                 src={cartProduct.product.img}
-                on:error={(e) =>
-                  (e.srcElement.src = "public/default-product.png")}
+                on:error={(e) => (e.target.src = defaultImg)}
               />
               <h5 class="cartProduct__name">{cartProduct.product.name}</h5>
             </div>
